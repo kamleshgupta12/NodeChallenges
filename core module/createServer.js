@@ -1,8 +1,8 @@
 
 const http = require('http')
 
-const ser=(req,resp)=>{
-    resp.write("<h1>Hello hfeygq this nhjk is a demo server</h1>")
-    resp.end();
+const srver = (req,resp)=>{
+    resp.write("Kamlesh")
+    resp.end()
 }
-http.createServer(ser).listen(1200);
+http.createServer(srver).listen(1200)
