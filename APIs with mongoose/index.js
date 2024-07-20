@@ -6,6 +6,20 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.get('/search/:key',async(req,resp)=>{
+    console.log(req.params.key)
+    const data = await database.find({
+        "$or":[
+            {"name":{$regex:req.params.key}},
+            {"course":{$regex:req.params.key}}
+
+        ]
+    });
+    resp.send(data)
+    console.log(data)   
+})
+
+
 app.post('/create', async (req, resp) => {
     console.log(req.body)
     try {
