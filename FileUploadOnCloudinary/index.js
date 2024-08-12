@@ -7,7 +7,10 @@ const PORT = process.env.PORT;
 // midleware 
 app.use(express.json());
 const  fileUpload = require('express-fileupload');
-app.use(fileUpload());
+app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
 
 // DB Connection 
 const db = require('./config/database');
