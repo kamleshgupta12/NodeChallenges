@@ -28,8 +28,8 @@ function isFileTypesSupported(type, supportedTypes) {
 }
 async function uploadFileToCloudinary(file, folder) {
     const options = { folder };
-    console.log("temp:-",file.tempFilePath)
-    await cloudinary.uploader.upload(file.tempFilePath, options)
+    console.log("temp:-", file.tempFilePath)
+    return await cloudinary.uploader.upload(file.tempFilePath, options);
 }
 
 
@@ -57,10 +57,10 @@ exports.imageUpload = async (req, resp) => {
 
         // file format supported 
         console.log(">>>>>>>>>>>>>>")
-        const response = await uploadFileToCloudinary(file, "demo")
+        const result = await uploadFileToCloudinary(file, "demo")
         console.log('mai thik Chal rha hu')
 
-        console.log(response)
+        // console.log(response)
         //   Save In DB 
 
         // const fileData = await File.create({
@@ -82,5 +82,52 @@ exports.imageUpload = async (req, resp) => {
             message: 'Somethings went Wrong....'
         })
 
+    }
+}
+
+
+
+exports.videoUpload = async (req, resp) => {
+    try {
+        const { name, tags, email } = req.body;
+        console.log(name, tags, email);
+
+        const file = req.files.videoFile;
+        console.log(file)
+
+
+
+        // vallllllll
+
+        const supportedTypes = ["mp4", "mov"];
+        const fileType = file.name.split('.')[1].toLowerCase();
+        console.log("File Type", fileType)
+
+        if (!isFileTypesSupported(fileType, supportedTypes)) {
+            return resp.status(400).json({
+                success: false,
+                message: 'File format not supported !'
+            })
+        }
+
+
+        console.log(">>>>>>>>>>>>>>")
+        const result = await uploadFileToCloudinary(file, "demo")
+        console.log('mai thik Chal rha hu')
+
+
+        resp.json({
+            success: true,
+            message: 'Video Successfully Uploaded ! '
+        })
+    }
+
+
+    catch (error) {
+        console.error(error)
+        resp.json({
+            success: false,
+            message: 'Somethings went Wrong....'
+        })
     }
 }
