@@ -1,5 +1,6 @@
 const File = require('../models/File');
 const cloudinary = require('cloudinary').v2
+const sharp = require('sharp')
 
 exports.localFileUpload = async (req, resp) => {
     try {
@@ -23,15 +24,15 @@ exports.localFileUpload = async (req, resp) => {
     }
 }
 
-function isFileTypesSupported(type, supportedTypes) {
-    return supportedTypes.includes(type);
+const isFileTypesSupported = (fileType, supportedTypes) => {
+    return supportedTypes.includes(fileType);
+};
+ 
+async function uploadFileToCloudinary(file, folder){
+    const options = {folder}
+    console.log("temp file path", file.tempFilePath);
+    return await cloudinary.uploader.upload(file.tempFilePath,options);
 }
-async function uploadFileToCloudinary(file, folder) {
-    const options = { folder };
-    console.log("temp:-", file.tempFilePath)
-    return await cloudinary.uploader.upload(file.tempFilePath, options);
-}
-
 
 exports.imageUpload = async (req, resp) => {
     try {
@@ -39,52 +40,52 @@ exports.imageUpload = async (req, resp) => {
         console.log(name, tags, email);
 
         const file = req.files.imageFile;
-        console.log(file)
+        console.log(file);
 
+        
 
-        //  validation 
-
+        // Supported file types
         const supportedTypes = ["jpg", "jpeg", "png"];
-        const fileType = file.name.split('.')[1].toLowerCase();
-        console.log("File Type", fileType)
+        const fileType = file.name.split('.').pop().toLowerCase(); // Safer way to get the file extension
+        console.log("File Type:", fileType);
 
         if (!isFileTypesSupported(fileType, supportedTypes)) {
             return resp.status(400).json({
                 success: false,
-                message: 'File format not supported !'
-            })
+                message: 'File format not supported!'
+            });
         }
 
-        // file format supported 
-        console.log(">>>>>>>>>>>>>>")
-        const result = await uploadFileToCloudinary(file, "demo")
-        console.log('mai thik Chal rha hu')
+        
+        
+        // File format supported, proceed with upload
+        console.log("Uploading compressed image to Cloudinary...");
+        const response = await uploadFileToCloudinary(file, "Code");
+        console.log(response);
 
-        // console.log(response)
-        //   Save In DB 
+        const fileData = await File.create({
+            name,
+            tags,
+            email,
+            imageUrl:response.secure_url,
+        })
 
-        // const fileData = await File.create({
-        //     name,
-        //     tags,
-        //     email,
-
-        // })
-
+        // Success response
         resp.json({
             success: true,
-            message: 'Image Successfully Uploaded ! '
-        })
-    }
-    catch (error) {
-        console.error(error)
-        resp.json({
+            message: 'Image Successfully Uploaded!',
+            data: response // You might want to return Cloudinary's response
+        });
+
+    
+
+    } catch (error) {
+        resp.status(500).json({
             success: false,
-            message: 'Somethings went Wrong....'
-        })
-
+            message: 'Something went wrong. Please try again.'
+        });
     }
-}
-
+};
 
 
 exports.videoUpload = async (req, resp) => {
@@ -112,14 +113,14 @@ exports.videoUpload = async (req, resp) => {
 
 
         console.log(">>>>>>>>>>>>>>")
-        const result = await uploadFileToCloudinary(file, "demo")
+        const result = await uploadFileToCloudinary(file, "Code")
         console.log('mai thik Chal rha hu')
 
 
         resp.json({
             success: true,
             message: 'Video Successfully Uploaded ! '
-        })
+        }) 
     }
 
 
