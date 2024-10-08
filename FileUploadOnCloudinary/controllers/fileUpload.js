@@ -40,10 +40,7 @@ exports.imageUpload = async (req, resp) => {
         console.log(name, tags, email);
 
         const file = req.files.imageFile;
-        console.log(file);
-
-        
-
+        console.log(file,"Upload file S");
         // Supported file types
         const supportedTypes = ["jpg", "jpeg", "png"];
         const fileType = file.name.split('.').pop().toLowerCase(); // Safer way to get the file extension
@@ -55,20 +52,18 @@ exports.imageUpload = async (req, resp) => {
                 message: 'File format not supported!'
             });
         }
-
-        
         
         // File format supported, proceed with upload
         console.log("Uploading compressed image to Cloudinary...");
         const response = await uploadFileToCloudinary(file, "Code");
-        console.log(response);
+        console.log(response,"RESPONSE ");
 
-        const fileData = await File.create({
-            name,
-            tags,
-            email,
-            imageUrl:response.secure_url,
-        })
+        // const fileData = await File.create({
+        //     name,
+        //     tags,
+        //     email,
+        //     imageUrl:response.secure_url,
+        // })
 
         // Success response
         resp.json({
